@@ -1,0 +1,37 @@
+{
+    "name": "laravel-enso/searchable",
+    "description": "Searchable dependency for Laravel Enso",
+    "keywords": [
+        "laravel-enso",
+        "searchable"
+    ],
+    "homepage": "https://github.com/laravel-enso/Searchable",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Adrian Ocneanu",
+            "email": "aocneanu@gmail.com",
+            "homepage": "https://laravel-enso.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "laravel-enso/core": "3.0.*",
+        "laravel-enso/vuecomponents": "2.5.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "LaravelEnso\\Searchable\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "LaravelEnso\\Searchable\\AppServiceProvider"
+            ],
+            "aliases": {}
+        }
+    }
+}
