@@ -39,7 +39,9 @@ class Finder
                                 $query->orWhere($attribute, 'like', '%'.$word.'%');
                             });
                     });
-                })->get()
+                })
+                ->limit(config('enso.searchable.limit'))
+                ->get()
                 ->map(function ($result) use ($model) {
                     return [
                         'id' => $result->getKey(),
