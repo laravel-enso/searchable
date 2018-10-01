@@ -2,8 +2,6 @@
 
 namespace LaravelEnso\Searchable\app\Classes;
 
-use LaravelEnso\PermissionManager\app\Models\Permission;
-
 class Finder
 {
     private const Routes = ['index', 'show', 'edit'];
@@ -73,7 +71,9 @@ class Finder
                 return $this->models[$model]['permissionGroup'].'.'.$route;
             });
 
-        return Permission::whereIn('name', $routes)
+        return auth()->user()->role
+            ->permissions()
+            ->whereIn('name', $routes)
             ->pluck('name')
             ->sortBy(function ($route) {
                 return $this->routes->keys()
