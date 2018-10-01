@@ -10,6 +10,7 @@ class Finder
 
     private $words;
     private $models;
+    private $routes;
     private $limit;
     private $results;
 
@@ -17,62 +18,101 @@ class Finder
     {
         $this->words = $this->words($query);
         $this->models = collect(config('enso.searchable.models'));
+        $this->routes = collect(config('enso.searchable.routes'));
         $this->limit = config('enso.searchable.limit');
         $this->results = collect();
     }
 
     public function search()
     {
-        $this->query();
+        $this->models->keys()
+            ->each(function ($model) {
+                $results = $this->query($model);
+                if ($results->isNotEmpty()) {
+                    $this->results = $this->results->merge(
+                        $this->map($results, $model)
+                    );
+                }
+            });
 
         return $this->results;
     }
 
-    private function query()
+    private function query($model)
     {
-        $this->models->keys()
-            ->each(function ($model) {
-                $results = $model::where(function ($query) use ($model) {
-                    $this->words->each(function ($word) use ($query, $model) {
-                        collect($this->models[$model]['attributes'])
-                            ->each(function ($attribute) use ($query, $word) {
-                                $query->orWhere($attribute, 'like', '%'.$word.'%');
-                            });
+        return $model::where(function ($query) use ($model) {
+            $this->words->each(function ($word) use ($query, $model) {
+                collect($this->models[$model]['attributes'])
+                    ->each(function ($attribute) use ($query, $word) {
+                        $query->orWhere($attribute, 'like', '%'.$word.'%');
                     });
-                })
-                ->limit(config('enso.searchable.limit'))
-                ->get()
-                ->map(function ($result) use ($model) {
-                    return [
-                        'id' => $result->getKey(),
-                        'groupLabel' => $this->models[$model]['groupLabel'],
-                        'label' => $result->{$this->models[$model]['itemLabel']},
-                        'routes' => $this->routes($model),
-                    ];
-                });
-
-                if ($results->count()) {
-                    $this->results = $this->results->merge($results);
-                }
             });
+        })
+        ->limit(config('enso.searchable.limit'))
+        ->get();
+    }
+
+    private function map($results, $model)
+    {
+        return $results->map(function ($result) use ($model) {
+            return [
+                'id' => $result->getKey(),
+                'group' => $this->group($model),
+                'label' => $result->{$this->label($model)},
+                'routes' => $this->routes($model),
+            ];
+        });
     }
 
     private function routes($model)
     {
-        $routes = collect($this->models[$model]['permissions'] ?? self::Routes)
-            ->map(
-                function ($route) use ($model) {
-                    return $this->models[$model]['permissionGroup'].'.'.$route;
-                }
-        );
+        $routes = collect(
+            $this->models[$model]['permissions']
+                ?? $this->routes->keys()
+            )->map(function ($route) use ($model) {
+                return $this->models[$model]['permissionGroup'].'.'.$route;
+            });
 
         return Permission::whereIn('name', $routes)
-            ->pluck('name');
+            ->pluck('name')
+            ->sortBy(function ($route) {
+                return $this->routes->keys()
+                    ->search($this->suffix($route));
+            })->values()
+            ->map(function ($route) {
+                return [
+                    'name' => $route,
+                    'icon' => $this->icon($route),
+                ];
+            });
     }
 
     private function words($query)
     {
         return collect(explode(' ', trim($query)))
             ->filter();
+    }
+
+    private function group($model)
+    {
+        return $this->models[$model]['group']
+            ?? class_basename($model);
+    }
+
+    private function label($model)
+    {
+        return $this->models[$model]['label']
+            ?? config('enso.searchable.defaultLabel');
+    }
+
+    private function icon($route)
+    {
+        return $this->routes[$this->suffix($route)] ?? null;
+    }
+
+    private function suffix($route)
+    {
+        return collect(explode('.', $route))
+            ->last();
     }
 }
