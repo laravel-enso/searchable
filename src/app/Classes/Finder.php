@@ -9,7 +9,7 @@ class Finder
     private $words;
     private $models;
     private $routes;
-    private $limit;
+    private $query;
     private $results;
 
     public function __construct(string $query)
@@ -17,7 +17,6 @@ class Finder
         $this->words = $this->words($query);
         $this->models = collect(config('enso.searchable.models'));
         $this->routes = collect(config('enso.searchable.routes'));
-        $this->limit = config('enso.searchable.limit');
         $this->results = collect();
     }
 
@@ -41,12 +40,17 @@ class Finder
         return $model::where(function ($query) use ($model) {
             $this->words->each(function ($word) use ($query, $model) {
                 collect($this->models[$model]['attributes'])
-                    ->each(function ($attribute) use ($query, $word) {
+                    ->each(function ($attribute) use ($query, $model, $word) {
                         $query->orWhere($attribute, 'like', '%'.$word.'%');
+
+                        collect($this->scopes($model))
+                            ->each(function ($scope) use ($query) {
+                                $query->{$scope}();
+                            });
                     });
             });
         })
-        ->limit(config('enso.searchable.limit'))
+        ->limit($this->limit())
         ->get();
     }
 
@@ -114,5 +118,16 @@ class Finder
     {
         return collect(explode('.', $route))
             ->last();
+    }
+
+    private function limit()
+    {
+        return config('enso.searchable.limit');
+    }
+
+    private function scopes($model)
+    {
+        return $this->models[$model]['scopes']
+            ?? [];
     }
 }
