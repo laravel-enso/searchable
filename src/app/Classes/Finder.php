@@ -4,12 +4,9 @@ namespace LaravelEnso\Searchable\app\Classes;
 
 class Finder
 {
-    private const Routes = ['index', 'show', 'edit'];
-
     private $words;
     private $models;
     private $routes;
-    private $query;
     private $results;
 
     public function __construct(string $query)
