@@ -15,11 +15,11 @@ Task management dependency for [Laravel](https://laravel.com).
 ### Features
 
 - can search for any configured model
-- various actions are contextually available for each result, also depinding on permissions
+- various actions are contextually available for each result, also depending on permissions
 - the icons used for the actions are customizable
 - the number is limited (by default at 10 results) to avoid too many DB hits
 - any model may be added to the searchable list
-- per-model customizations are available, such as attributes to seach and the label to use 
+- per-model customizations are available, such as attributes to search and the label to use 
 
 ### Configuration & Usage
 
