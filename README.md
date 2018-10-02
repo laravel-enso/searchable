@@ -8,9 +8,22 @@
 
 Task management dependency for [Laravel](https://laravel.com).
 
+[![Watch the demo](https://laravel-enso.github.io/searchable/screenshots/bulma_001_thumb.png)](https://laravel-enso.github.io/searchable/videos/bulma_demo_01.mp4)
+
+<sup>click on the photo to view a short demo in compatible browsers</sup>
+
 ### Features
 
-Soon...
+- can search for any configured model
+- various actions are contextually available for each result, also depinding on permissions
+- the icons used for the actions are customizable
+- the number is limited (by default at 10 results) to avoid too many DB hits
+- any model may be added to the searchable list
+- per-model customizations are available, such as attributes to seach and the label to use 
+
+### Configuration & Usage
+
+Be sure to check out the full documentation for this package available at [docs.laravel-enso.com](https://docs.laravel-enso.com/packages/searchable.html)
 
 ### Contributions
 
