@@ -10,6 +10,7 @@ class Finder
     private $models;
     private $routes;
     private $results;
+    private $actions;
 
     public function __construct(string $query)
     {
@@ -17,6 +18,7 @@ class Finder
         $this->models = collect(config('enso.searchable.models'));
         $this->routes = collect(config('enso.searchable.routes'));
         $this->results = collect();
+        $this->actions = [];
     }
 
     public function search()
@@ -95,6 +97,15 @@ class Finder
     }
 
     private function actions($model)
+    {
+        if (! isset($this->actions[$model])) {
+            $this->actions[$model] = $this->permissions($model);
+        }
+
+        return $this->actions[$model];
+    }
+
+    private function permissions($model)
     {
         return auth()->user()->role
             ->permissions()
