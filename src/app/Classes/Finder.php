@@ -88,9 +88,9 @@ class Finder
     {
         return $results->map(function ($result) use ($model) {
             return [
-                'param' => [$this->routeParam($model) => $result->getKey()],
+                'param' => $this->routeParam($result, $model),
                 'group' => $this->group($model),
-                'label' => $result->{$this->label($model)},
+                'label' => $this->label($result, $model),
                 'routes' => $this->actions($model),
             ];
         });
@@ -134,15 +134,28 @@ class Finder
         return collect($this->models[$model]['attributes']);
     }
 
-    private function label($model)
+    private function label($result, $model)
     {
-        return $this->models[$model]['label']
+        $label = $this->models[$model]['label']
             ?? config('enso.searchable.defaultLabel');
+
+        return collect(explode('.', $label))
+            ->reduce(function ($result, $attribute) {
+                return $result->{$attribute};
+            }, $result);
     }
 
-    private function routeParam($model)
+    private function routeParam($result, $model)
     {
-        return Str::camel(class_basename($model));
+        $param = isset($this->models[$model]['routeParam'])
+            ? key($this->models[$model]['routeParam'])
+            : Str::camel(class_basename($model));
+
+        $key = isset($this->models[$model]['routeParam'])
+            ? $this->models[$model]['routeParam'][$param]
+            : $result->getKeyName();
+
+        return [$param => $result->{$key}];
     }
 
     private function routes($model)
