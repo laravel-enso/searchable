@@ -39,14 +39,17 @@ class Finder
 
     private function query($model)
     {
-        return $model::where(function ($query) use ($model) {
-            $this->words->each(function ($word) use ($query, $model) {
-                $this->match($model, $query, $word);
-            });
+        $query = $model::query();
 
-            $this->addScopes($model, $query);
-        })->limit($this->limit())
-        ->get();
+        $this->addScopes($model, $query);
+
+        $this->words->each(function ($word) use ($model, $query) {
+            $query->where(function ($query) use ($model, $word) {
+                $this->match($model, $query, $word);
+            })->limit($this->limit());
+        });
+
+        return $query->get();
     }
 
     private function match($model, $query, $word)
