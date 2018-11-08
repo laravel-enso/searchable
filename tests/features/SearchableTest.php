@@ -13,7 +13,7 @@ class SearchableTest extends TestCase
     use  RefreshDatabase;
 
     private $testModel;
-    private $query;
+    
     const SearchablePermission = 'searchableModels.test';
     const DefaultPermission = 'defaultPermission';
 
