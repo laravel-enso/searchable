@@ -4,7 +4,6 @@ use Faker\Factory;
 use Tests\TestCase;
 use LaravelEnso\Core\app\Models\User;
 use Illuminate\Database\Eloquent\Model;
-use LaravelEnso\Searchable\app\Classes\Finder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use LaravelEnso\PermissionManager\app\Models\Permission;
 
@@ -13,7 +12,7 @@ class SearchableTest extends TestCase
     use  RefreshDatabase;
 
     private $testModel;
-    
+
     const SearchablePermission = 'searchableModels.test';
     const DefaultPermission = 'defaultPermission';
 
@@ -78,7 +77,7 @@ class SearchableTest extends TestCase
     {
         $defaultPermission = $this->setDefaultRoute();
 
-        $this->get(route('core.search.index', ['query' =>  $this->testModel->name], false))
+        $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
             ->assertStatus(200)
             ->assertJsonFragment(['routes' => [['icon' => 'test-icon', 'name' => $defaultPermission->name]]]);
     }
@@ -88,8 +87,7 @@ class SearchableTest extends TestCase
     {
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
             ->assertStatus(200)
-            ->assertJsonFragment(['group' =>
-                config('enso.searchable.models.SearchableTestModel.group')
+            ->assertJsonFragment(['group' => config('enso.searchable.models.SearchableTestModel.group')
             ]);
     }
 
@@ -143,7 +141,7 @@ class SearchableTest extends TestCase
 
         config(['enso.searchable.routes' => [self::DefaultPermission => 'test-icon']]);
         config(['enso.searchable.models.SearchableTestModel.permissions' => null]);
-        
+
         return $defaultPermission;
     }
 }
