@@ -9,7 +9,7 @@ use LaravelEnso\PermissionManager\app\Models\Permission;
 
 class SearchableTest extends TestCase
 {
-    use  RefreshDatabase;
+    use RefreshDatabase;
 
     private $testModel;
 
@@ -31,14 +31,7 @@ class SearchableTest extends TestCase
     }
 
     /** @test */
-    public function can_access_search_index()
-    {
-        $this->get('core.search.index', [], false)
-            ->assertStatus(200);
-    }
-
-    /** @test */
-    public function can_bring_the_correct_searched_model()
+    public function can_fetch_the_correct_searched_model()
     {
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
             ->assertStatus(200)
@@ -65,7 +58,7 @@ class SearchableTest extends TestCase
     }
 
     /** @test */
-    public function can_bring_routes_for_searched_model()
+    public function can_fetch_routes_for_searched_model()
     {
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
             ->assertStatus(200)
@@ -73,7 +66,7 @@ class SearchableTest extends TestCase
     }
 
     /** @test */
-    public function can_bring_default_routes_for_searched_model()
+    public function can_fetch_default_routes_for_searched_model()
     {
         $defaultPermission = $this->setDefaultRoute();
 
@@ -83,12 +76,11 @@ class SearchableTest extends TestCase
     }
 
     /** @test */
-    public function can_bring_the_correct_group()
+    public function can_fetch_the_correct_group()
     {
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
             ->assertStatus(200)
-            ->assertJsonFragment(['group' => config('enso.searchable.models.SearchableTestModel.group')
-            ]);
+            ->assertJsonFragment(['group' => config('enso.searchable.models.SearchableTestModel.group')]);
     }
 
     private function model()
@@ -117,24 +109,23 @@ class SearchableTest extends TestCase
     private function setConfig($computed = false)
     {
         config(['enso.searchable.models' => [
-                SearchableTestModel::class => [
-                    'group' => 'SearchableTestModel',
-                    'attributes' => ['name', 'computedLabel'],
-                    'label' => $computed === false
-                        ? 'name'
-                        : 'computedLabel',
-                    'permissionGroup' => 'searchableModels',
-                    'permissions' => ['test'],
-                ]
+            SearchableTestModel::class => [
+                'group' => 'SearchableTestModel',
+                'attributes' => ['name', 'computedLabel'],
+                'label' => $computed === false
+                    ? 'name'
+                    : 'computedLabel',
+                'permissionGroup' => 'searchableModels',
+                'permissions' => ['test'],
             ]
-        ]);
+        ]]);
     }
 
     private function setDefaultRoute()
     {
         $defaultPermission = factory(Permission::class)->create([
-                'name' => 'searchableModels.'.self::DefaultPermission,
-                'is_default' => true,
+            'name' => 'searchableModels.' . self::DefaultPermission,
+            'is_default' => true,
         ]);
 
         $defaultPermission->roles()->attach(auth()->user()->role->id);
