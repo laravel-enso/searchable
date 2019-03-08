@@ -16,7 +16,7 @@ class SearchableTest extends TestCase
     const SearchablePermission = 'searchableModels.test';
     const DefaultPermission = 'defaultPermission';
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
