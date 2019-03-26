@@ -18,7 +18,8 @@
     ],
     "require": {
         "php": ">=7.1.0",
-        "laravel-enso/core": "4.1.*"
+        "laravel-enso/core": "4.1.*",
+        "laravel-enso/structuremanager": "3.0.*"
     },
     "autoload": {
         "psr-4": {
