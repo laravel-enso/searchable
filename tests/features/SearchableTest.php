@@ -72,7 +72,9 @@ class SearchableTest extends TestCase
 
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
             ->assertStatus(200)
-            ->assertJsonFragment(['routes' => [['icon' => 'test-icon', 'name' => $defaultPermission->name]]]);
+            ->assertJsonFragment([
+                'routes' => [['icon' => 'test-icon', 'name' => $defaultPermission->name]]
+            ]);
     }
 
     /** @test */
@@ -80,7 +82,9 @@ class SearchableTest extends TestCase
     {
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
             ->assertStatus(200)
-            ->assertJsonFragment(['group' => config('enso.searchable.models.SearchableTestModel.group')]);
+            ->assertJsonFragment([
+                'group' => config('enso.searchable.models.SearchableTestModel.group')
+            ]);
     }
 
     private function model()
@@ -124,7 +128,7 @@ class SearchableTest extends TestCase
     private function setDefaultRoute()
     {
         $defaultPermission = factory(Permission::class)->create([
-            'name' => 'searchableModels.' . self::DefaultPermission,
+            'name' => 'searchableModels.'.self::DefaultPermission,
             'is_default' => true,
         ]);
 
