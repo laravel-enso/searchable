@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Providers;
+
+use LaravelEnso\Searchable\SearchServiceProvider as ServiceProvider;
+
+class SearchServiceProvider extends ServiceProvider
+{
+    public $register = [
+        // Model::class => [
+        //    'group' => 'Model',
+        //    'attributes' => ['name', 'email'],
+        //    'label' => 'name',
+        //    'permissionGroup' => 'model',
+        //],
+    ];
+}

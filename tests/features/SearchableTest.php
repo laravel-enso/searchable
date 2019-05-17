@@ -4,8 +4,9 @@ use Faker\Factory;
 use Tests\TestCase;
 use LaravelEnso\Core\app\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use LaravelEnso\Searchable\app\Facades\Search;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use LaravelEnso\PermissionManager\app\Models\Permission;
+use LaravelEnso\Permissions\app\Models\Permission;
 
 class SearchableTest extends TestCase
 {
@@ -72,9 +73,17 @@ class SearchableTest extends TestCase
 
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
             ->assertStatus(200)
-            ->assertJsonFragment([
-                'routes' => [['icon' => 'test-icon', 'name' => $defaultPermission->name]]
-            ]);
+            ->assertJsonFragment([[
+                'group' => 'SearchableTestModel',
+                'label' =>'searchable',
+                'param' => [
+                    'searchableTestModel' => 1
+                ],
+                'routes' => [[
+                    'icon' => null,
+                    'name' => 'searchableModels.test'
+                ]]
+            ]]);
     }
 
     /** @test */
@@ -83,7 +92,7 @@ class SearchableTest extends TestCase
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
             ->assertStatus(200)
             ->assertJsonFragment([
-                'group' => config('enso.searchable.models.SearchableTestModel.group')
+                'group' => Search::all()->get('SearchableTestModel')['group']
             ]);
     }
 
@@ -112,7 +121,7 @@ class SearchableTest extends TestCase
 
     private function setConfig($computed = false)
     {
-        config(['enso.searchable.models' => [
+        Search::register([
             SearchableTestModel::class => [
                 'group' => 'SearchableTestModel',
                 'attributes' => ['name', 'computedLabel'],
@@ -122,7 +131,7 @@ class SearchableTest extends TestCase
                 'permissionGroup' => 'searchableModels',
                 'permissions' => ['test'],
             ]
-        ]]);
+        ]);
     }
 
     private function setDefaultRoute()

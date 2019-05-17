@@ -5,7 +5,7 @@
         "laravel-enso",
         "searchable"
     ],
-    "homepage": "https://github.com/laravel-enso/Searchable",
+    "homepage": "https://github.com/laravel-enso/searchable",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -18,8 +18,8 @@
     ],
     "require": {
         "php": ">=7.1.0",
-        "laravel-enso/core": "4.2.*",
-        "laravel-enso/structuremanager": "3.0.*"
+        "laravel-enso/core": "4.3.*",
+        "laravel-enso/cli": "3.1.*"
     },
     "autoload": {
         "psr-4": {
@@ -29,9 +29,12 @@
     "extra": {
         "laravel": {
             "providers": [
-                "LaravelEnso\\Searchable\\AppServiceProvider"
+                "LaravelEnso\\Searchable\\AppServiceProvider",
+                "LaravelEnso\\Searchable\\SearchServiceProvider"
             ],
-            "aliases": {}
+            "aliases": {
+                "Search": "LaravelEnso\\Searchable\\app\\Facades\\Search"
+            }
         }
     }
 }

@@ -1,8 +1,9 @@
 <?php
 
-namespace LaravelEnso\Searchable\app\Classes;
+namespace LaravelEnso\Searchable\app\Services;
 
 use Illuminate\Support\Str;
+use LaravelEnso\Searchable\app\Facades\Search;
 
 class Finder
 {
@@ -15,7 +16,7 @@ class Finder
     public function __construct(string $query)
     {
         $this->words = $this->words($query);
-        $this->models = collect(config('enso.searchable.models'));
+        $this->models = Search::all();
         $this->routes = collect(config('enso.searchable.routes'));
         $this->results = collect();
         $this->actions = [];
@@ -134,12 +135,12 @@ class Finder
 
     private function attributes($model)
     {
-        return collect($this->models[$model]['attributes']);
+        return collect($this->models->get($model)['attributes']);
     }
 
     private function label($result, $model)
     {
-        $label = $this->models[$model]['label']
+        $label = $this->models->get($model)['label']
             ?? config('enso.searchable.defaultLabel');
 
         return collect(explode('.', $label))
@@ -150,12 +151,12 @@ class Finder
 
     private function routeParam($result, $model)
     {
-        $param = isset($this->models[$model]['routeParam'])
-            ? key($this->models[$model]['routeParam'])
+        $param = isset($this->models->get($model)['routeParam'])
+            ? key($this->models->get($model)['routeParam'])
             : Str::camel(class_basename($model));
 
-        $key = isset($this->models[$model]['routeParam'])
-            ? $this->models[$model]['routeParam'][$param]
+        $key = isset($this->models->get($model)['routeParam'])
+            ? $this->models->get($model)['routeParam'][$param]
             : $result->getKeyName();
 
         return [$param => $result->{$key}];
@@ -164,15 +165,15 @@ class Finder
     private function routes($model)
     {
         return collect(
-                $this->models[$model]['permissions'] ?? $this->routes->keys()
+                $this->models->get($model)['permissions'] ?? $this->routes->keys()
             )->map(function ($route) use ($model) {
-                return $this->models[$model]['permissionGroup'].'.'.$route;
+                return $this->models->get($model)['permissionGroup'].'.'.$route;
             });
     }
 
     private function group($model)
     {
-        return $this->models[$model]['group']
+        return $this->models->get($model)['group']
             ?? collect(explode('_', snake_case(class_basename($model))))
                 ->map(function ($word) {
                     return ucfirst($word);
@@ -196,7 +197,7 @@ class Finder
 
     private function scopes($model)
     {
-        return collect($this->models[$model]['scopes'] ?? []);
+        return collect($this->models->get($model)['scopes'] ?? []);
     }
 
     private function isNested($attribute)

@@ -32,5 +32,9 @@ class AppServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/config' => config_path('enso'),
         ], 'enso-config');
+
+        $this->publishes([
+            __DIR__.'/../stubs/SearchServiceProvider.stub' => app_path('Providers/SearchServiceProvider.php'),
+        ], 'search-provider');
     }
 }
