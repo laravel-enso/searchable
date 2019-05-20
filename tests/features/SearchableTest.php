@@ -1,6 +1,5 @@
 <?php
 
-use Faker\Factory;
 use Tests\TestCase;
 use LaravelEnso\Core\app\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -69,7 +68,7 @@ class SearchableTest extends TestCase
     /** @test */
     public function can_fetch_default_routes_for_searched_model()
     {
-        $defaultPermission = $this->setDefaultRoute();
+        $this->setDefaultRoute();
 
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
             ->assertStatus(200)
@@ -145,8 +144,6 @@ class SearchableTest extends TestCase
 
         config(['enso.searchable.routes' => [self::DefaultPermission => 'test-icon']]);
         config(['enso.searchable.models.SearchableTestModel.permissions' => null]);
-
-        return $defaultPermission;
     }
 }
 
