@@ -3,9 +3,14 @@
 namespace LaravelEnso\Searchable;
 
 use Illuminate\Support\ServiceProvider;
+use LaravelEnso\Searchable\app\Services\Search;
 
 class AppServiceProvider extends ServiceProvider
 {
+    public $singletons = [
+        'search' => Search::class,
+    ];
+
     public function boot()
     {
         $this->loadDependencies()
