@@ -7,7 +7,7 @@ use LaravelEnso\Searchable\app\Facades\Search;
 
 class Finder
 {
-    private $words;
+    private $searchArguments;
     private $models;
     private $routes;
     private $results;
@@ -15,7 +15,7 @@ class Finder
 
     public function __construct(string $query)
     {
-        $this->words = $this->words($query);
+        $this->searchArguments = $this->searchArguments($query);
         $this->models = Search::all();
         $this->routes = collect(config('enso.searchable.routes'));
         $this->results = collect();
@@ -24,16 +24,15 @@ class Finder
 
     public function search()
     {
-        $this->models->keys()
-            ->each(function ($model) {
-                $results = $this->query($model);
+        $this->models->keys()->each(function ($model) {
+            $results = $this->query($model);
 
-                if ($results->isNotEmpty()) {
-                    $this->results = $this->results->merge(
-                        $this->map($results, $model)
-                    );
-                }
-            });
+            if ($results->isNotEmpty()) {
+                $this->results = $this->results->merge(
+                    $this->map($results, $model)
+                );
+            }
+        });
 
         return $this->results;
     }
@@ -44,40 +43,39 @@ class Finder
 
         $this->addScopes($model, $query);
 
-        $this->words->each(function ($word) use ($model, $query) {
-            $query->where(function ($query) use ($model, $word) {
-                $this->match($model, $query, $word);
+        $this->searchArguments->each(function ($argument) use ($model, $query) {
+            $query->where(function ($query) use ($model, $argument) {
+                $this->match($model, $query, $argument);
             })->limit($this->limit());
         });
 
         return $query->get();
     }
 
-    private function match($model, $query, $word)
+    private function match($model, $query, $argument)
     {
-        $this->attributes($model)
-            ->each(function ($attribute) use ($query, $model, $word) {
-                $this->isNested($attribute)
-                    ? $this->where($query, $attribute, $word)
-                    : $query->orWhere($attribute, 'like', '%'.$word.'%');
-            });
+        $this->attributes($model)->each(function ($attribute) use ($query, $argument) {
+            return $this->isNested($attribute)
+                ? $this->whereHasRelation($query, $attribute, $argument)
+                : $query->orWhere($attribute, 'like', '%'.$argument.'%');
+        });
     }
 
-    private function where($query, $attribute, $word)
+    private function whereHasRelation($query, $attribute, $argument)
     {
-        if ($this->isNested($attribute)) {
-            $attributes = collect(explode('.', $attribute));
-
-            $query->orWhere(function ($query) use ($attributes, $word) {
-                $query->whereHas($attributes->shift(), function ($query) use ($attributes, $word) {
-                    $this->where($query, $attributes->implode('.'), $word);
-                });
-            });
+        if (! $this->isNested($attribute)) {
+            $query->where($attribute, 'like', '%'.$argument.'%');
 
             return;
         }
 
-        $query->where($attribute, 'like', '%'.$word.'%');
+        $attributes = collect(explode('.', $attribute));
+
+        $query->orWhere(function ($query) use ($attributes, $argument) {
+            $query->whereHas($attributes->shift(), function ($query) use ($attributes, $argument) {
+                $this->whereHasRelation($query, $attributes->implode('.'), $argument);
+            });
+        });
     }
 
     private function addScopes($model, $query)
@@ -127,10 +125,9 @@ class Finder
             });
     }
 
-    private function words($query)
+    private function searchArguments($query)
     {
-        return collect(explode(' ', trim($query)))
-        ->filter();
+        return collect(explode(' ', trim($query)))->filter();
     }
 
     private function attributes($model)
