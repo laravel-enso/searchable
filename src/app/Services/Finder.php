@@ -145,7 +145,7 @@ class Finder
 
         return collect(explode('.', $label))
             ->reduce(function ($result, $attribute) {
-                return $result->{$attribute};
+                return (string) $result->{$attribute};
             }, $result);
     }
 
