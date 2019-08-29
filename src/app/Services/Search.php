@@ -23,11 +23,8 @@ class Search
 
     public function remove($models)
     {
-        $models = collect($models);
-
-        $this->sources = $this->sources
-            ->reject(function ($config, $model) use ($models) {
-                return $models->contains($model);
-            });
+        collect($models)->each(function ($model) {
+            $this->sources->forget($model);
+        });
     }
 }
