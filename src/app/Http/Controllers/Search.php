@@ -10,7 +10,6 @@ class Search extends Controller
 {
     public function __invoke(Request $request)
     {
-        return (new Finder($request->get('query')))
-            ->search();
+        return (new Finder($request->get('query')))->search();
     }
 }

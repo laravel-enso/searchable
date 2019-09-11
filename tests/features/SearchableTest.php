@@ -1,6 +1,7 @@
 <?php
 
 use Tests\TestCase;
+use Illuminate\Support\Facades\Auth;
 use LaravelEnso\Core\app\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use LaravelEnso\Searchable\app\Facades\Search;
@@ -11,10 +12,11 @@ class SearchableTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const SearchablePermission = 'searchableModels.test';
+    private const DefaultPermission = 'defaultPermission';
+
     private $testModel;
 
-    const SearchablePermission = 'searchableModels.test';
-    const DefaultPermission = 'defaultPermission';
 
     protected function setUp(): void
     {
@@ -102,7 +104,7 @@ class SearchableTest extends TestCase
         factory(Permission::class)->create([
             'name' => 'searchableModels.test',
             'is_default' => true,
-        ])->roles()->attach(auth()->user()->role->id);
+        ])->roles()->attach(Auth::user()->role->id);
 
         return SearchableTestModel::create(['name' => 'searchable']);
     }
@@ -140,7 +142,7 @@ class SearchableTest extends TestCase
             'is_default' => true,
         ]);
 
-        $defaultPermission->roles()->attach(auth()->user()->role->id);
+        $defaultPermission->roles()->attach(Auth::user()->role->id);
 
         config(['enso.searchable.routes' => [self::DefaultPermission => 'test-icon']]);
         config(['enso.searchable.models.SearchableTestModel.permissions' => null]);

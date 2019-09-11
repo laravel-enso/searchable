@@ -3,6 +3,7 @@
 namespace LaravelEnso\Searchable\app\Services;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use LaravelEnso\Searchable\app\Facades\Search;
 
 class Finder
@@ -109,7 +110,7 @@ class Finder
 
     private function permissions($model)
     {
-        return auth()->user()->role
+        return Auth::user()->role
             ->permissions()
             ->whereIn('name', $this->routes($model))
             ->pluck('name')
