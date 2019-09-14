@@ -172,7 +172,7 @@ class Finder
     private function group($model)
     {
         return $this->models->get($model)['group']
-            ?? collect(explode('_', snake_case(class_basename($model))))
+            ?? collect(explode('_', Str::snake(class_basename($model))))
                 ->map(function ($word) {
                     return ucfirst($word);
                 })->implode(' ');
