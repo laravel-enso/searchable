@@ -4,27 +4,27 @@ namespace LaravelEnso\Searchable\app\Services;
 
 class Search
 {
-    private $sources;
+    private $models;
 
     public function __construct()
     {
-        $this->sources = collect();
+        $this->models = collect();
     }
 
-    public function register($sources)
+    public function register($models)
     {
-        $this->sources = $this->sources->merge($sources);
-    }
-
-    public function all()
-    {
-        return $this->sources;
+        $this->models = $this->models->merge($models);
     }
 
     public function remove($models)
     {
         collect($models)->each(function ($model) {
-            $this->sources->forget($model);
+            $this->models->forget($model);
         });
+    }
+
+     public function all()
+    {
+        return $this->models;
     }
 }
