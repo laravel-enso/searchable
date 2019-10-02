@@ -23,7 +23,7 @@ class Search
         });
     }
 
-     public function all()
+    public function all()
     {
         return $this->models;
     }
