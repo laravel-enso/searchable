@@ -12,16 +12,7 @@ Task management dependency for [Laravel](https://laravel.com).
 
 <sup>click on the photo to view a short demo in compatible browsers</sup>
 
-### Features
-
-- can search for any configured model
-- various actions are contextually available for each result, also depending on permissions
-- the icons used for the actions are customizable
-- the number is limited (by default at 10 results) to avoid too many DB hits
-- any model may be added to the searchable list
-- per-model customizations are available, such as attributes to search and the label to use 
-
-### Configuration & Usage
+### Installation, Configuration & Usage
 
 Be sure to check out the full documentation for this package available at [docs.laravel-enso.com](https://docs.laravel-enso.com/backend/searchable.html)
 
