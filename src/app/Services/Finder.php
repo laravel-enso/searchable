@@ -44,22 +44,21 @@ class Finder
 
         $this->addScopes($model, $query);
 
-        $this->searchArguments->each(function ($argument) use ($model, $query) {
-            $query->where(function ($query) use ($model, $argument) {
-                $this->match($model, $query, $argument);
-            })->limit($this->limit());
-        });
+        $this->searchArguments->each(fn($argument) => (
+            $query->where(fn($query) => $this->match($model, $query, $argument))
+                ->limit($this->limit())
+        ));
 
         return $query->get();
     }
 
     private function match($model, $query, $argument)
     {
-        $this->attributes($model)->each(function ($attribute) use ($query, $argument) {
-            return $this->isNested($attribute)
+        $this->attributes($model)->each(fn($attribute) => (
+            $this->isNested($attribute)
                 ? $this->whereHasRelation($query, $attribute, $argument)
-                : $query->orWhere($attribute, 'like', '%'.$argument.'%');
-        });
+                : $query->orWhere($attribute, 'like', '%'.$argument.'%')
+        ));
     }
 
     private function whereHasRelation($query, $attribute, $argument)
@@ -72,31 +71,27 @@ class Finder
 
         $attributes = collect(explode('.', $attribute));
 
-        $query->orWhere(function ($query) use ($attributes, $argument) {
-            $query->whereHas($attributes->shift(), function ($query) use ($attributes, $argument) {
-                $this->whereHasRelation($query, $attributes->implode('.'), $argument);
-            });
-        });
+        $query->orWhere(fn($query) => (
+            $query->whereHas($attributes->shift(), fn($query) => (
+                $this->whereHasRelation($query, $attributes->implode('.'), $argument)
+            ))
+        ));
     }
 
     private function addScopes($model, $query)
     {
         $this->scopes($model)
-            ->each(function ($scope) use ($query) {
-                $query->{$scope}();
-            });
+            ->each(fn($scope) => $query->{$scope}());
     }
 
     private function map($results, $model)
     {
-        return $results->map(function ($result) use ($model) {
-            return [
-                'param' => $this->routeParam($result, $model),
-                'group' => $this->group($model),
-                'label' => $this->label($result, $model),
-                'routes' => $this->actions($model),
-            ];
-        });
+        return $results->map(fn($result) => [
+            'param' => $this->routeParam($result, $model),
+            'group' => $this->group($model),
+            'label' => $this->label($result, $model),
+            'routes' => $this->actions($model),
+        ]);
     }
 
     private function actions($model)
@@ -114,16 +109,14 @@ class Finder
             ->permissions()
             ->whereIn('name', $this->routes($model))
             ->pluck('name')
-            ->sortBy(function ($route) {
-                return $this->routes->keys()
-                    ->search($this->suffix($route));
-            })->values()
-            ->map(function ($route) {
-                return [
-                    'name' => $route,
-                    'icon' => $this->icon($route),
-                ];
-            });
+            ->sortBy(fn($route) => (
+                $this->routes->keys()
+                    ->search($this->suffix($route))
+            ))->values()
+            ->map(fn($route) => [
+                'name' => $route,
+                'icon' => $this->icon($route),
+            ]);
     }
 
     private function searchArguments($query)
@@ -142,9 +135,9 @@ class Finder
             ?? config('enso.searchable.defaultLabel');
 
         return collect(explode('.', $label))
-            ->reduce(function ($result, $attribute) {
-                return (string) $result->{$attribute};
-            }, $result);
+            ->reduce(fn($result, $attribute) => (
+                (string) $result->{$attribute}
+            ), $result);
     }
 
     private function routeParam($result, $model)
@@ -164,18 +157,15 @@ class Finder
     {
         return collect(
                 $this->models->get($model)['permissions'] ?? $this->routes->keys()
-            )->map(function ($route) use ($model) {
-                return $this->models->get($model)['permissionGroup'].'.'.$route;
-            });
+            )->map(fn($route) => $this->models->get($model)['permissionGroup'].'.'.$route);
     }
 
     private function group($model)
     {
         return $this->models->get($model)['group']
             ?? collect(explode('_', Str::snake(class_basename($model))))
-                ->map(function ($word) {
-                    return ucfirst($word);
-                })->implode(' ');
+                ->map(fn($word) => ucfirst($word))
+                ->implode(' ');
     }
 
     private function icon($route)

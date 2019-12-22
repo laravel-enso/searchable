@@ -18,9 +18,8 @@ class Search
 
     public function remove($models)
     {
-        collect($models)->each(function ($model) {
-            $this->models->forget($model);
-        });
+        collect($models)
+            ->each(fn($model) => $this->models->forget($model));
     }
 
     public function all()
