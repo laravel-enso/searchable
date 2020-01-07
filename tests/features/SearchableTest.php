@@ -1,12 +1,13 @@
 <?php
 
-use Tests\TestCase;
-use Illuminate\Support\Facades\Auth;
-use LaravelEnso\Core\app\Models\User;
 use Illuminate\Database\Eloquent\Model;
-use LaravelEnso\Searchable\app\Facades\Search;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
+use LaravelEnso\Core\app\Models\User;
 use LaravelEnso\Permissions\app\Models\Permission;
+use LaravelEnso\Searchable\app\Facades\Search;
+use Tests\TestCase;
 
 class SearchableTest extends TestCase
 {

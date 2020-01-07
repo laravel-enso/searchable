@@ -3,7 +3,7 @@
 namespace LaravelEnso\Searchable;
 
 use Illuminate\Support\ServiceProvider;
-use LaravelEnso\Searchable\app\Services\Search;
+use LaravelEnso\Searchable\App\Services\Search;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,11 +32,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__.'/config' => config_path('enso'),
-        ], 'searchable-config');
-
-        $this->publishes([
-            __DIR__.'/config' => config_path('enso'),
-        ], 'enso-config');
+        ], ['searchable-config', 'enso-config']);
 
         $this->publishes([
             __DIR__.'/../stubs/SearchServiceProvider.stub' => app_path('Providers/SearchServiceProvider.php'),

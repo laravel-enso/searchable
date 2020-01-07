@@ -1,10 +1,10 @@
 <?php
 
-namespace LaravelEnso\Searchable\app\Http\Controllers;
+namespace LaravelEnso\Searchable\App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use LaravelEnso\Searchable\app\Services\Finder;
+use LaravelEnso\Searchable\App\Services\Finder;
 
 class Search extends Controller
 {

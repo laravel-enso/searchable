@@ -1,29 +1,29 @@
 <?php
 
-namespace LaravelEnso\Searchable\app\Services;
+namespace LaravelEnso\Searchable\App\Services;
+
+use Illuminate\Support\Collection;
 
 class Search
 {
-    private $models;
+    private Collection $models;
 
     public function __construct()
     {
-        $this->models = collect();
+        $this->models = new Collection();
     }
 
-    public function register($models)
+    public function register($models): void
     {
         $this->models = $this->models->merge($models);
     }
 
-    public function remove($models)
+    public function remove($models): void
     {
-        collect($models)->each(function ($model) {
-            $this->models->forget($model);
-        });
+        (new Collection($models))->each(fn ($model) => $this->models->forget($model));
     }
 
-    public function all()
+    public function all(): Collection
     {
         return $this->models;
     }
