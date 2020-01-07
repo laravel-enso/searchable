@@ -1,68 +1,68 @@
 <?php
 
-namespace LaravelEnso\Searchable\app\Services;
+namespace LaravelEnso\Searchable\App\Services;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use LaravelEnso\Searchable\app\Facades\Search;
+use LaravelEnso\Searchable\App\Facades\Search;
 
 class Finder
 {
-    private $searchArguments;
-    private $models;
-    private $routes;
-    private $results;
-    private $actions;
+    private Collection $searchArguments;
+    private Collection $models;
+    private Collection $routes;
+    private Collection $results;
+    private array $actions;
 
     public function __construct(string $query)
     {
         $this->searchArguments = $this->searchArguments($query);
         $this->models = Search::all();
-        $this->routes = collect(config('enso.searchable.routes'));
-        $this->results = collect();
+        $this->routes = new Collection(config('enso.searchable.routes'));
+        $this->results = new Collection();
         $this->actions = [];
     }
 
-    public function search()
+    public function search(): Collection
     {
-        $this->models->keys()->each(function ($model) {
-            $results = $this->query($model);
-
-            if ($results->isNotEmpty()) {
-                $this->results = $this->results->merge(
-                    $this->map($results, $model)
-                );
-            }
-        });
+        $this->models->keys()->each(fn ($model) => $this->mergeResults($model));
 
         return $this->results;
     }
 
-    private function query($model)
+    public function mergeResults($model): void
+    {
+        $results = $this->query($model);
+
+        if ($results->isNotEmpty()) {
+            $this->results = $this->results->merge(
+                $this->map($results, $model)
+            );
+        }
+    }
+
+    private function query($model): Collection
     {
         $query = $model::query();
 
         $this->addScopes($model, $query);
 
-        $this->searchArguments->each(function ($argument) use ($model, $query) {
-            $query->where(function ($query) use ($model, $argument) {
-                $this->match($model, $query, $argument);
-            })->limit($this->limit());
-        });
+        $this->searchArguments->each(fn ($argument) => $query
+            ->where(fn ($query) => $this->match($model, $query, $argument))
+            ->limit($this->limit()));
 
         return $query->get();
     }
 
-    private function match($model, $query, $argument)
+    private function match($model, $query, $argument): void
     {
-        $this->attributes($model)->each(function ($attribute) use ($query, $argument) {
-            return $this->isNested($attribute)
-                ? $this->whereHasRelation($query, $attribute, $argument)
-                : $query->orWhere($attribute, 'like', '%'.$argument.'%');
-        });
+        $this->attributes($model)->each(fn ($attribute) => $this->isNested($attribute)
+            ? $this->whereHasRelation($query, $attribute, $argument)
+            : $query->orWhere($attribute, 'like', '%'.$argument.'%'));
     }
 
-    private function whereHasRelation($query, $attribute, $argument)
+    private function whereHasRelation($query, $attribute, $argument): void
     {
         if (! $this->isNested($attribute)) {
             $query->where($attribute, 'like', '%'.$argument.'%');
@@ -70,36 +70,31 @@ class Finder
             return;
         }
 
-        $attributes = collect(explode('.', $attribute));
+        $attributes = new Collection(explode('.', $attribute));
 
-        $query->orWhere(function ($query) use ($attributes, $argument) {
-            $query->whereHas($attributes->shift(), function ($query) use ($attributes, $argument) {
-                $this->whereHasRelation($query, $attributes->implode('.'), $argument);
-            });
-        });
+        $query->orWhere(fn ($query) => $query->whereHas(
+            $attributes->shift(),
+            fn ($query) => $this->whereHasRelation($query, $attributes->implode('.'), $argument)
+        ));
     }
 
-    private function addScopes($model, $query)
+    private function addScopes($model, $query): void
     {
         $this->scopes($model)
-            ->each(function ($scope) use ($query) {
-                $query->{$scope}();
-            });
+            ->each(fn ($scope) => $query->{$scope}());
     }
 
-    private function map($results, $model)
+    private function map($results, $model): Collection
     {
-        return $results->map(function ($result) use ($model) {
-            return [
-                'param' => $this->routeParam($result, $model),
-                'group' => $this->group($model),
-                'label' => $this->label($result, $model),
-                'routes' => $this->actions($model),
-            ];
-        });
+        return $results->map(fn ($result) => [
+            'param' => $this->routeParam($result, $model),
+            'group' => $this->group($model),
+            'label' => $this->label($result, $model),
+            'routes' => $this->actions($model),
+        ]);
     }
 
-    private function actions($model)
+    private function actions($model): Collection
     {
         if (! isset($this->actions[$model])) {
             $this->actions[$model] = $this->permissions($model);
@@ -108,46 +103,41 @@ class Finder
         return $this->actions[$model];
     }
 
-    private function permissions($model)
+    private function permissions($model): Collection
     {
         return Auth::user()->role
             ->permissions()
             ->whereIn('name', $this->routes($model))
             ->pluck('name')
-            ->sortBy(function ($route) {
-                return $this->routes->keys()
-                    ->search($this->suffix($route));
-            })->values()
-            ->map(function ($route) {
-                return [
-                    'name' => $route,
-                    'icon' => $this->icon($route),
-                ];
-            });
+            ->sortBy(fn ($route) => $this->routes->keys()
+                ->search($this->suffix($route)))
+            ->values()
+            ->map(fn ($route) => [
+                'name' => $route,
+                'icon' => $this->icon($route),
+            ]);
     }
 
-    private function searchArguments($query)
+    private function searchArguments($query): Collection
     {
-        return collect(explode(' ', trim($query)))->filter();
+        return (new Collection(explode(' ', trim($query))))->filter();
     }
 
-    private function attributes($model)
+    private function attributes($model): Collection
     {
-        return collect($this->models->get($model)['attributes']);
+        return new Collection($this->models->get($model)['attributes']);
     }
 
-    private function label($result, $model)
+    private function label($result, $model): string
     {
         $label = $this->models->get($model)['label']
             ?? config('enso.searchable.defaultLabel');
 
-        return collect(explode('.', $label))
-            ->reduce(function ($result, $attribute) {
-                return (string) $result->{$attribute};
-            }, $result);
+        return (new Collection(explode('.', $label)))
+            ->reduce(fn ($result, $attribute) => (string) $result->{$attribute}, $result);
     }
 
-    private function routeParam($result, $model)
+    private function routeParam($result, $model): array
     {
         $param = isset($this->models->get($model)['routeParam'])
             ? key($this->models->get($model)['routeParam'])
@@ -160,45 +150,41 @@ class Finder
         return [$param => $result->{$key}];
     }
 
-    private function routes($model)
+    private function routes($model): Collection
     {
-        return collect(
-                $this->models->get($model)['permissions'] ?? $this->routes->keys()
-            )->map(function ($route) use ($model) {
-                return $this->models->get($model)['permissionGroup'].'.'.$route;
-            });
+        return (new Collection(
+            $this->models->get($model)['permissions'] ?? $this->routes->keys()
+        ))->map(fn ($route) => $this->models->get($model)['permissionGroup'].'.'.$route);
     }
 
-    private function group($model)
+    private function group($model): string
     {
         return $this->models->get($model)['group']
-            ?? collect(explode('_', Str::snake(class_basename($model))))
-                ->map(function ($word) {
-                    return ucfirst($word);
-                })->implode(' ');
+            ?? (new Collection(explode('_', Str::snake(class_basename($model)))))
+                ->map(fn ($word) => ucfirst($word))->implode(' ');
     }
 
-    private function icon($route)
+    private function icon($route): ?string
     {
         return $this->routes[$this->suffix($route)] ?? null;
     }
 
-    private function suffix($route)
+    private function suffix($route): string
     {
-        return collect(explode('.', $route))->last();
+        return (new Collection(explode('.', $route)))->last();
     }
 
-    private function limit()
+    private function limit(): int
     {
         return config('enso.searchable.limit');
     }
 
-    private function scopes($model)
+    private function scopes($model): Collection
     {
-        return collect($this->models->get($model)['scopes'] ?? []);
+        return new Collection($this->models->get($model)['scopes'] ?? []);
     }
 
-    private function isNested($attribute)
+    private function isNested($attribute): bool
     {
         return Str::contains($attribute, '.');
     }
