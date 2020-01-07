@@ -56,21 +56,21 @@ class Finder
     private function matchArgument(string $model, Builder $query, string $argument): void
     {
         $this->attributes($model)->each(fn ($attribute) => $query->orWhere(
-            fn ($query) => $this->matchAttribute($query, $argument, $attribute)
+            fn ($query) => $this->matchAttribute($query, $attribute, $argument)
         ));
     }
 
-    private function matchAttribute(Builder $query, string $argument, string $attribute): void
+    private function matchAttribute(Builder $query, string $attribute, string $argument)
     {
         $nested = $this->isNested($attribute);
 
         $query->when($nested, fn ($query) => $this->matchSegments($query, $attribute, $argument))
             ->when(! $nested, fn ($query) => $query->where(
-                $attribute, 'like', '%'.$argument.'%'
+                $attribute, config('enso.select.comparisonOperator'), '%'.$argument.'%'
             ));
     }
 
-    private function matchSegments(Builder $query, string $argument, string $attribute)
+    private function matchSegments(Builder $query, string $attribute, string $argument)
     {
         $attributes = (new Collection(explode('.', $attribute)));
 
