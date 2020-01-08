@@ -33,7 +33,7 @@
                 "LaravelEnso\\Searchable\\SearchServiceProvider"
             ],
             "aliases": {
-                "Search": "LaravelEnso\\Searchable\\app\\Facades\\Search"
+                "Search": "LaravelEnso\\Searchable\\App\\Facades\\Search"
             }
         }
     }
