@@ -2,22 +2,23 @@
 
 namespace LaravelEnso\Searchable\App\Services;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
+use LaravelEnso\Filters\App\Services\Search as Service;
 use LaravelEnso\Searchable\App\Facades\Search;
 
 class Finder
 {
-    private Collection $searchArguments;
+    private string $search;
     private Collection $models;
     private Collection $routes;
     private array $actions;
 
-    public function __construct(string $query)
+    public function __construct(string $search)
     {
-        $this->searchArguments = $this->searchArguments($query);
+        $this->search = $search;
         $this->models = Search::all();
         $this->routes = new Collection(config('enso.searchable.routes'));
         $this->actions = [];
@@ -46,37 +47,12 @@ class Finder
 
         $this->addScopes($model, $query);
 
-        $this->searchArguments->each(fn ($argument) => $query
-            ->where(fn ($query) => $this->matchArgument($model, $query, $argument))
-            ->limit($this->limit()));
-
-        return $query->get();
-    }
-
-    private function matchArgument(string $model, Builder $query, string $argument): void
-    {
-        $this->attributes($model)->each(fn ($attribute) => $query->orWhere(
-            fn ($query) => $this->matchAttribute($query, $attribute, $argument)
-        ));
-    }
-
-    private function matchAttribute(Builder $query, string $attribute, string $argument)
-    {
-        $nested = $this->isNested($attribute);
-
-        $query->when($nested, fn ($query) => $this->matchSegments($query, $attribute, $argument))
-            ->when(! $nested, fn ($query) => $query->where(
-                $attribute, config('enso.select.comparisonOperator'), '%'.$argument.'%'
-            ));
-    }
-
-    private function matchSegments(Builder $query, string $attribute, string $argument)
-    {
-        $attributes = (new Collection(explode('.', $attribute)));
-
-        $query->whereHas($attributes->shift(), fn ($query) => $this->matchAttribute(
-            $query, $attributes->implode('.'), $argument)
-        );
+        return (new Service($query, $this->attributes($model), $this->search))
+            ->relations($this->relations($model))
+            ->comparisonOperator(Config::get('enso.select.comparisonOperator'))
+            ->handle()
+            ->limit(Config::get('enso.searchable.limit'))
+            ->get();
     }
 
     private function addScopes($model, $query): void
@@ -101,7 +77,7 @@ class Finder
     {
         return $this->models->get($model)['group']
             ?? (new Collection(explode('_', Str::snake(class_basename($model)))))
-                ->map(fn ($word) => Str::ucfirst($word))->implode(' ');
+            ->map(fn ($word) => Str::ucfirst($word))->implode(' ');
     }
 
     private function label($result, $model): string
@@ -130,14 +106,18 @@ class Finder
             ]);
     }
 
-    private function searchArguments($query): Collection
+    private function attributes($model): array
     {
-        return (new Collection(explode(' ', trim($query))))->filter();
+        return (new Collection($this->models->get($model)['attributes']))
+            ->reject(fn ($attribute) => $this->isNested($attribute))
+            ->toArray();
     }
 
-    private function attributes($model): Collection
+    private function relations($model): array
     {
-        return new Collection($this->models->get($model)['attributes']);
+        return (new Collection($this->models->get($model)['attributes']))
+            ->filter(fn ($attribute) => $this->isNested($attribute))
+            ->toArray();
     }
 
     private function routes($model): Collection
@@ -155,11 +135,6 @@ class Finder
     private function suffix($route): string
     {
         return (new Collection(explode('.', $route)))->last();
-    }
-
-    private function limit(): int
-    {
-        return config('enso.searchable.limit');
     }
 
     private function scopes($model): Collection
