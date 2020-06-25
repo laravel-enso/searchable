@@ -8,19 +8,17 @@
     "homepage": "https://github.com/laravel-enso/searchable",
     "type": "library",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Adrian Ocneanu",
-            "email": "aocneanu@gmail.com",
-            "homepage": "https://laravel-enso.com",
-            "role": "Developer"
-        }
-    ],
+    "authors": [{
+        "name": "Adrian Ocneanu",
+        "email": "aocneanu@gmail.com",
+        "homepage": "https://laravel-enso.com",
+        "role": "Developer"
+    }],
     "require": {
-        "laravel-enso/core": "4.8.*",
-        "laravel-enso/filters": "1.0.*",
-        "laravel-enso/migrator": "1.1.*",
-        "laravel-enso/permissions": "3.4.*"
+        "laravel-enso/core": "^5.0",
+        "laravel-enso/filters": "^2.0",
+        "laravel-enso/migrator": "^2.0",
+        "laravel-enso/permissions": "^4.0"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +32,7 @@
                 "LaravelEnso\\Searchable\\SearchServiceProvider"
             ],
             "aliases": {
-                "Search": "LaravelEnso\\Searchable\\App\\Facades\\Search"
+                "Search": "LaravelEnso\\Searchable\\Facades\\Search"
             }
         }
     }

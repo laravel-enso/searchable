@@ -1,13 +1,13 @@
 <?php
 
-namespace LaravelEnso\Searchable\App\Services;
+namespace LaravelEnso\Searchable\Services;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
-use LaravelEnso\Filters\App\Services\Search as Service;
-use LaravelEnso\Searchable\App\Facades\Search;
+use LaravelEnso\Filters\Services\Search as Service;
+use LaravelEnso\Searchable\Facades\Search;
 
 class Finder
 {

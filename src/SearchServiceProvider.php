@@ -3,7 +3,7 @@
 namespace LaravelEnso\Searchable;
 
 use Illuminate\Support\ServiceProvider;
-use LaravelEnso\Searchable\App\Facades\Search;
+use LaravelEnso\Searchable\Facades\Search;
 
 class SearchServiceProvider extends ServiceProvider
 {

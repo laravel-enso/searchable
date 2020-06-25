@@ -4,9 +4,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
-use LaravelEnso\Core\App\Models\User;
-use LaravelEnso\Permissions\App\Models\Permission;
-use LaravelEnso\Searchable\App\Facades\Search;
+use LaravelEnso\Core\Models\User;
+use LaravelEnso\Permissions\Models\Permission;
+use LaravelEnso\Searchable\Facades\Search;
 use Tests\TestCase;
 
 class SearchableTest extends TestCase

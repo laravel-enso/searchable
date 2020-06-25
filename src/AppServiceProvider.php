@@ -3,7 +3,7 @@
 namespace LaravelEnso\Searchable;
 
 use Illuminate\Support\ServiceProvider;
-use LaravelEnso\Searchable\App\Services\Search;
+use LaravelEnso\Searchable\Services\Search;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,11 +19,11 @@ class AppServiceProvider extends ServiceProvider
 
     private function load()
     {
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
-        $this->loadRoutesFrom(__DIR__.'/routes/api.php');
+        $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
 
-        $this->mergeConfigFrom(__DIR__.'/config/searchable.php', 'enso.searchable');
+        $this->mergeConfigFrom(__DIR__.'/../config/searchable.php', 'enso.searchable');
 
         return $this;
     }
@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
     private function publish()
     {
         $this->publishes([
-            __DIR__.'/config' => config_path('enso'),
+            __DIR__.'/../config' => config_path('enso'),
         ], ['searchable-config', 'enso-config']);
 
         $this->publishes([
