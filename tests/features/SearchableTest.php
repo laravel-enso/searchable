@@ -102,7 +102,7 @@ class SearchableTest extends TestCase
     {
         $this->createTestTable();
 
-        factory(Permission::class)->create([
+        Permission::factory()->create([
             'name' => 'searchableModels.test',
             'is_default' => true,
         ])->roles()->attach(Auth::user()->role->id);
@@ -138,7 +138,7 @@ class SearchableTest extends TestCase
 
     private function setDefaultRoute()
     {
-        $defaultPermission = factory(Permission::class)->create([
+        $defaultPermission = Permission::factory()->create([
             'name' => 'searchableModels.'.self::DefaultPermission,
             'is_default' => true,
         ]);
