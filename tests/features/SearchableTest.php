@@ -18,7 +18,6 @@ class SearchableTest extends TestCase
 
     private $testModel;
 
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -77,14 +76,14 @@ class SearchableTest extends TestCase
             ->assertStatus(200)
             ->assertJsonFragment([[
                 'group' => 'SearchableTestModel',
-                'label' =>'searchable',
+                'label' => 'searchable',
                 'param' => [
-                    'searchableTestModel' => 1
+                    'searchableTestModel' => 1,
                 ],
                 'routes' => [[
                     'icon' => null,
-                    'name' => 'searchableModels.test'
-                ]]
+                    'name' => 'searchableModels.test',
+                ]],
             ]]);
     }
 
@@ -94,7 +93,7 @@ class SearchableTest extends TestCase
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
             ->assertStatus(200)
             ->assertJsonFragment([
-                'group' => Search::all()->get('SearchableTestModel')['group']
+                'group' => Search::all()->get('SearchableTestModel')['group'],
             ]);
     }
 
@@ -132,7 +131,7 @@ class SearchableTest extends TestCase
                     : 'computedLabel',
                 'permissionGroup' => 'searchableModels',
                 'permissions' => ['test'],
-            ]
+            ],
         ]);
     }
 
