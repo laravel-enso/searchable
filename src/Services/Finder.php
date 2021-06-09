@@ -11,14 +11,12 @@ use LaravelEnso\Searchable\Facades\Search;
 
 class Finder
 {
-    private string $search;
     private Collection $models;
     private Collection $routes;
     private array $actions;
 
-    public function __construct(string $search)
+    public function __construct(private string $search)
     {
-        $this->search = $search;
         $this->models = Search::all();
         $this->routes = new Collection(config('enso.searchable.routes'));
         $this->actions = [];
@@ -76,7 +74,7 @@ class Finder
     private function group($model): string
     {
         return $this->models->get($model)['group']
-            ?? (new Collection(explode('_', Str::snake(class_basename($model)))))
+            ?? Collection::wrap(explode('_', Str::snake(class_basename($model))))
             ->map(fn ($word) => Str::ucfirst($word))->implode(' ');
     }
 
@@ -85,7 +83,7 @@ class Finder
         $label = $this->models->get($model)['label']
             ?? config('enso.searchable.defaultLabel');
 
-        return (new Collection(explode('.', $label)))
+        return Collection::wrap(explode('.', $label))
             ->reduce(fn ($result, $attribute) => (string) $result->{$attribute}, $result);
     }
 
@@ -108,23 +106,23 @@ class Finder
 
     private function attributes($model): array
     {
-        return (new Collection($this->models->get($model)['attributes']))
+        return Collection::wrap($this->models->get($model)['attributes'])
             ->reject(fn ($attribute) => $this->isNested($attribute))
             ->toArray();
     }
 
     private function relations($model): array
     {
-        return (new Collection($this->models->get($model)['attributes']))
+        return Collection::wrap($this->models->get($model)['attributes'])
             ->filter(fn ($attribute) => $this->isNested($attribute))
             ->toArray();
     }
 
     private function routes($model): Collection
     {
-        return (new Collection(
+        return Collection::wrap(
             $this->models->get($model)['permissions'] ?? $this->routes->keys()
-        ))->map(fn ($route) => $this->models->get($model)['permissionGroup'].'.'.$route);
+        )->map(fn ($route) => $this->models->get($model)['permissionGroup'].'.'.$route);
     }
 
     private function icon($route): ?string
@@ -134,7 +132,7 @@ class Finder
 
     private function suffix($route): string
     {
-        return (new Collection(explode('.', $route)))->last();
+        return Collection::wrap(explode('.', $route))->last();
     }
 
     private function scopes($model): Collection

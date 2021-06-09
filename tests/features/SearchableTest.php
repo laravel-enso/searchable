@@ -4,9 +4,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
-use LaravelEnso\Core\Models\User;
 use LaravelEnso\Permissions\Models\Permission;
 use LaravelEnso\Searchable\Facades\Search;
+use LaravelEnso\Users\Models\User;
 use Tests\TestCase;
 
 class SearchableTest extends TestCase
@@ -21,8 +21,6 @@ class SearchableTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        // $this->withoutExceptionHandling();
 
         $this->seed()
             ->actingAs(User::first());

@@ -20,7 +20,8 @@ class Search
 
     public function remove($models): void
     {
-        (new Collection($models))->each(fn ($model) => $this->models->forget($model));
+        Collection::wrap($models)
+            ->each(fn ($model) => $this->models->forget($model));
     }
 
     public function all(): Collection
