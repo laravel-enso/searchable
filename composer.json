@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "laravel-enso/core": "^9.0",
+        "laravel-enso/core": "^10.0",
         "laravel-enso/filters": "^2.0",
         "laravel-enso/migrator": "^2.1",
         "laravel-enso/permissions": "^5.0"
