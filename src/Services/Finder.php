@@ -18,7 +18,7 @@ class Finder
     public function __construct(private string $search)
     {
         $this->models = Search::all();
-        $this->routes = new Collection(config('enso.searchable.routes'));
+        $this->routes = new Collection(Config::get('enso.searchable.routes'));
         $this->actions = [];
     }
 
@@ -41,6 +41,13 @@ class Finder
 
     private function query(string $model): Collection
     {
+        $config = $this->models[$model];
+
+        if ($config['searchProvider'] ?? null) {
+            return $model::search($this->search)
+                ->take(Config::get('enso.searchable.limit'))->get();
+        }
+
         $query = $model::query();
 
         $this->addScopes($model, $query);
