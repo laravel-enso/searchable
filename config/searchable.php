@@ -4,7 +4,7 @@ return [
     'defaultLabel' => 'name',
     'routes' => [
         'show' => 'eye',
-        'edit' => 'pencil-alt',
+        'edit' => 'pen',
         'index' => 'list-ul',
     ],
     'limit' => 10,

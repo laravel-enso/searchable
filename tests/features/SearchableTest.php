@@ -8,6 +8,7 @@ use LaravelEnso\Permissions\Models\Permission;
 use LaravelEnso\Searchable\Facades\Search;
 use LaravelEnso\Users\Models\User;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class SearchableTest extends TestCase
 {
@@ -30,7 +31,7 @@ class SearchableTest extends TestCase
         $this->setConfig();
     }
 
-    /** @test */
+    #[Test]
     public function can_fetch_the_correct_searched_model()
     {
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
@@ -38,7 +39,7 @@ class SearchableTest extends TestCase
             ->assertJsonFragment(['param' => ['searchableTestModel' => $this->testModel->id]]);
     }
 
-    /** @test */
+    #[Test]
     public function can_show_model_attributes()
     {
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
@@ -46,7 +47,7 @@ class SearchableTest extends TestCase
             ->assertJsonFragment([$this->testModel->name]);
     }
 
-    /** @test */
+    #[Test]
     public function can_show_computed_model_attributes()
     {
         $this->setConfig($computed = true);
@@ -57,7 +58,7 @@ class SearchableTest extends TestCase
             ->assertJsonFragment([$this->testModel->computedLabel]);
     }
 
-    /** @test */
+    #[Test]
     public function can_fetch_routes_for_searched_model()
     {
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
@@ -65,7 +66,7 @@ class SearchableTest extends TestCase
             ->assertJsonFragment([self::SearchablePermission]);
     }
 
-    /** @test */
+    #[Test]
     public function can_fetch_default_routes_for_searched_model()
     {
         $this->setDefaultRoute();
@@ -85,7 +86,7 @@ class SearchableTest extends TestCase
             ]]);
     }
 
-    /** @test */
+    #[Test]
     public function can_fetch_the_correct_group()
     {
         $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
