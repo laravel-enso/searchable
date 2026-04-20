@@ -32,9 +32,9 @@ class Finder
     private function map(string $model): Collection
     {
         return $this->query($model)->map(fn ($result) => [
-            'param' => $this->routeParam($result, $model),
-            'group' => $this->group($model),
-            'label' => $this->label($result, $model),
+            'param'  => $this->routeParam($result, $model),
+            'group'  => $this->group($model),
+            'label'  => $this->label($result, $model),
             'routes' => $this->actions($model),
         ]);
     }

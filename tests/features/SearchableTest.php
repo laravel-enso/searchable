@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Schema;
 use LaravelEnso\Permissions\Models\Permission;
 use LaravelEnso\Searchable\Facades\Search;
 use LaravelEnso\Users\Models\User;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class SearchableTest extends TestCase
 {
@@ -110,8 +110,8 @@ class SearchableTest extends TestCase
     public function can_apply_registered_scopes_before_searching()
     {
         SearchableTestModel::create([
-            'name' => $this->testModel->name,
-            'slug' => 'inactive',
+            'name'      => $this->testModel->name,
+            'slug'      => 'inactive',
             'is_active' => false,
         ]);
 
@@ -137,7 +137,7 @@ class SearchableTest extends TestCase
         $this->createTestTable();
 
         Permission::factory()->create([
-            'name' => 'searchableModels.test',
+            'name'       => 'searchableModels.test',
             'is_default' => true,
         ])->roles()->attach(Auth::user()->role->id);
 
@@ -161,16 +161,16 @@ class SearchableTest extends TestCase
     {
         Search::register([
             SearchableTestModel::class => [
-                'group' => 'SearchableTestModel',
+                'group'      => 'SearchableTestModel',
                 'attributes' => ['name', 'computedLabel'],
-                'label' => $computed === false
+                'label'      => $computed === false
                     ? 'name'
                     : 'computedLabel',
                 'permissionGroup' => 'searchableModels',
-                'permissions' => ['test'],
-                'routeParam' => $routeParam,
-                'scopes' => $scopes,
-                'searchProvider' => $searchProvider,
+                'permissions'     => ['test'],
+                'routeParam'      => $routeParam,
+                'scopes'          => $scopes,
+                'searchProvider'  => $searchProvider,
             ],
         ]);
     }
@@ -178,7 +178,7 @@ class SearchableTest extends TestCase
     private function setDefaultRoute()
     {
         $defaultPermission = Permission::factory()->create([
-            'name' => 'searchableModels.'.self::DefaultPermission,
+            'name'       => 'searchableModels.'.self::DefaultPermission,
             'is_default' => true,
         ]);
 
