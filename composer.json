@@ -1,6 +1,6 @@
 {
     "name": "laravel-enso/searchable",
-    "description": "Searchable dependency for Laravel Enso",
+    "description": "Global searchable registry for Laravel Enso",
     "keywords": [
         "laravel-enso",
         "searchable"
