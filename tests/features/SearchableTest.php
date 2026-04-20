@@ -96,6 +96,42 @@ class SearchableTest extends TestCase
             ]);
     }
 
+    #[Test]
+    public function can_use_custom_route_params_for_search_results()
+    {
+        $this->setConfig(routeParam: ['searchableSlug' => 'slug']);
+
+        $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
+            ->assertStatus(200)
+            ->assertJsonFragment(['param' => ['searchableSlug' => $this->testModel->slug]]);
+    }
+
+    #[Test]
+    public function can_apply_registered_scopes_before_searching()
+    {
+        SearchableTestModel::create([
+            'name' => $this->testModel->name,
+            'slug' => 'inactive',
+            'is_active' => false,
+        ]);
+
+        $this->setConfig(scopes: ['active']);
+
+        $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
+            ->assertStatus(200)
+            ->assertJsonMissing(['param' => ['searchableTestModel' => 2]]);
+    }
+
+    #[Test]
+    public function can_use_the_registered_search_provider_branch()
+    {
+        $this->setConfig(searchProvider: true);
+
+        $this->get(route('core.search.index', ['query' => $this->testModel->name], false))
+            ->assertStatus(200)
+            ->assertJsonFragment(['param' => ['searchableTestModel' => $this->testModel->id]]);
+    }
+
     private function model()
     {
         $this->createTestTable();
@@ -113,13 +149,15 @@ class SearchableTest extends TestCase
         Schema::create('searchable_test_models', function ($table) {
             $table->increments('id');
             $table->string('name');
+            $table->string('slug')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
 
         return $this;
     }
 
-    private function setConfig($computed = false)
+    private function setConfig($computed = false, ?array $routeParam = null, array $scopes = [], bool $searchProvider = false)
     {
         Search::register([
             SearchableTestModel::class => [
@@ -130,6 +168,9 @@ class SearchableTest extends TestCase
                     : 'computedLabel',
                 'permissionGroup' => 'searchableModels',
                 'permissions' => ['test'],
+                'routeParam' => $routeParam,
+                'scopes' => $scopes,
+                'searchProvider' => $searchProvider,
             ],
         ]);
     }
@@ -150,12 +191,41 @@ class SearchableTest extends TestCase
 
 class SearchableTestModel extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'slug', 'is_active'];
 
     protected $appends = ['computedLabel'];
 
     public function getComputedLabelAttribute()
     {
         return 'computedAttribute';
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->whereIsActive(true);
+    }
+
+    public static function search($term)
+    {
+        return new SearchableTestSearchBuilder($term);
+    }
+}
+
+class SearchableTestSearchBuilder
+{
+    public function __construct(private string $term)
+    {
+    }
+
+    public function take($limit)
+    {
+        return $this;
+    }
+
+    public function get()
+    {
+        return SearchableTestModel::query()
+            ->where('name', 'like', "%{$this->term}%")
+            ->get();
     }
 }
